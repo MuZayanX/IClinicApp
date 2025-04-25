@@ -28,7 +28,11 @@ builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IJwtService, JwtService>();
 builder.Services.AddScoped<IDtoMapper, DtoMapper>();
 builder.Services.AddScoped<IHomePageService, HomePageService>();
-builder.Services.AddScoped<IAddDoctorService, AddDoctorService>();
+builder.Services.AddScoped<IAdminService, AdminService>();
+builder.Services.AddScoped<IUserProfileService, UserProfileService>();
+builder.Services.AddScoped<ISpecializationService, SpecializationService>();
+builder.Services.AddScoped<IGovernorateService, GovernorateService>();
+builder.Services.AddScoped<ICityService, CityService>();
 
 
 // Add Identity
@@ -79,11 +83,22 @@ builder.Services.AddAuthentication(options =>
 });
 
 //Add Authorization
-builder.Services.AddAuthorization(options =>
-{  options.AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"));
-    options.AddPolicy("UserOnly", policy => policy.RequireRole("User"));
-    options.AddPolicy("UserorAdmin" , policy => policy.RequireRole("Admin", "User"));
+builder.Services.AddAuthorizationBuilder()
+                       //Add Authorization
+                       .AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"))
+                       //Add Authorization
+                       .AddPolicy("UserOnly", policy => policy.RequireRole("User"))
+                       //Add Authorization
+                       .AddPolicy("UserorAdmin", policy => policy.RequireRole("Admin", "User"));
+
+builder.Services.AddCors(options => {
+    options.AddPolicy("AllowAll", policy =>
+        policy.AllowAnyOrigin()
+              .AllowAnyMethod()
+              .AllowAnyHeader());
 });
+
+
 
 var app = builder.Build();
 
@@ -124,6 +139,8 @@ using (var scope = app.Services.CreateScope())
     });
 
     app.UseAuthorization();
+
+    app.UseCors("AllowAll");
 
     app.MapControllers();
 

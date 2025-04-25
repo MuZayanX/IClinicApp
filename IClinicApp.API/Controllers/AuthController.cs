@@ -41,7 +41,7 @@ namespace IClinicApp.API.Controllers
         {
             var result = await _authService.LoginAsync(dto);
             if (!result.Status)
-                return Unauthorized(result);
+                return BadRequest(result);
 
             return Ok(result);
         }

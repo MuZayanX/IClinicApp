@@ -33,12 +33,8 @@ namespace IClinicApp.API.Repos.Services
         Appointment MapToAppointment(BookAppointmentDto bookAppointmentDto);
         Appointment MapUpadateToAppointment(UpdateAppointmentDto updateAppointmentDto);
         UserProfileDto MapToUserProfileDto(ApplicationUser user);
-        ApplicationUser MapUpdateToAppUser(UpdateUserProfileDto updateUserProfileDto);
         NotificationDto MapToNotificationDto(Notification notification);
         MedicalRecordDto MapToMedicalRecordDto(MedicalRecord medicalRecord);
         HomePageDto MapToHomePageDto(string userFullName, IEnumerable<Doctor> doctors, IEnumerable<Specialization> specializations);
-
-
-
     }
 }

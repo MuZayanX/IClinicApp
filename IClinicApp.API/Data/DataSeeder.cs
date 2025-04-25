@@ -23,7 +23,6 @@ namespace IClinicApp.API.Data
         public static async Task SeedAdminAsync(IServiceProvider serviceProvider)
         {
             var userManager = serviceProvider.GetRequiredService<UserManager<ApplicationUser>>();
-            var roleManager = serviceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
 
             var adminEmail = "admin@iclinic.com";
             var adminUser = await userManager.FindByEmailAsync(adminEmail);

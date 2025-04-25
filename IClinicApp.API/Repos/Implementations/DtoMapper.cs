@@ -66,7 +66,8 @@ namespace IClinicApp.API.Repos.Implementations
             return new GovernorateDto
             {
                 Id = governorate.Id,
-                Name = governorate.Name
+                Name = governorate.Name,
+                Cities = governorate.Cities.Select(c => MapToCityDto(c)).ToList()
             };
         }
         public CityDto MapToCityDto(City city)
@@ -77,16 +78,18 @@ namespace IClinicApp.API.Repos.Implementations
             {
                 Id = city.Id,
                 Name = city.Name,
-                Governorate = MapToGovernorateDto(city.Governorate)
+                GovernorateId = city.GovernorateId,
+                Doctors = city.Doctors.Select(d => MapToDoctorDto(d)).ToList()
             };
         }
         public DoctorFilterDto MapToFilterDto(Doctor Doctor)
         {
             if (Doctor == null) return null!;
+            
             return new DoctorFilterDto
             {
                 Specialization = MapToSpecializationDto(Doctor.Specialization),
-                Rating = Doctor.Reviews.Average(r => r.Rating),
+                Rating =  Doctor.Reviews!.Count != 0 ? Doctor.Reviews.Average(r => r.Rating) : 0,
             };
         }
         public SpecializationDto MapToSpecializationDto(Specialization specialization)
@@ -95,7 +98,8 @@ namespace IClinicApp.API.Repos.Implementations
             return new SpecializationDto
             {
                 Id = specialization.Id,
-                Name = specialization.Name
+                Name = specialization.Name,
+                Doctors = specialization.Doctors.Select(d => MapToDoctorDto(d)).ToList()
             };
         }
         public DoctorDto MapToDoctorDto(Doctor doctor)
@@ -106,11 +110,14 @@ namespace IClinicApp.API.Repos.Implementations
                 Id = doctor.Id,
                 FullName = doctor.FullName,
                 ClinicName = doctor.ClinicName,
-                Specialization = MapToSpecializationDto(doctor.Specialization),
-                Rating = doctor.Reviews.Any() ? doctor.Reviews.Average(r => r.Rating) : 0,
+                SpecializationId = doctor.SpecializationId,
+                SpecializationName = doctor.Specialization.Name,
+                Rating = doctor.Reviews!.Count != 0 ? doctor.Reviews.Average(r => r.Rating) : 0,
                 ReviewsCount = doctor.Reviews.Count,
                 ImageUrl = doctor.ImageUrl,
-                City = MapToCityDto(doctor.City)
+                CityId = doctor.CityId,
+                CityName = doctor.City.Name ?? string.Empty,
+                GovernorateName = doctor.City.Governorate.Name ?? string.Empty,
             };
         }
         public DoctorProfileDto MapToDoctorProfileDto(Doctor doctor)
@@ -122,9 +129,12 @@ namespace IClinicApp.API.Repos.Implementations
                 ImageUrl = doctor.ImageUrl,
                 FullName = doctor.FullName,
                 ClinicName = doctor.ClinicName,
-                Specialization = MapToSpecializationDto(doctor.Specialization),
-                City = MapToCityDto(doctor.City),
-                Rating = doctor.Reviews.Average(r => r.Rating),
+                SpecializationId = doctor.SpecializationId,
+                SpecializationName = doctor.Specialization.Name,
+                CityId = doctor.CityId,
+                CityName = doctor.City.Name,
+                GovernorateName = doctor.City.Governorate.Name,
+                Rating = doctor.Reviews!.Count != 0 ? doctor.Reviews.Average(r => r.Rating) : 0,
                 ReviewsCount = doctor.Reviews.Count,
                 Bio = doctor.Bio,
                 Price = doctor.Price,
@@ -142,7 +152,7 @@ namespace IClinicApp.API.Repos.Implementations
             return new ReviewDto
             {
                 Id = review.Id,
-                Comment = review.Comment!,
+                Comment = review.Comment ?? string.Empty,
                 Stars = review.Rating,
                 CreatedAt = review.CreatedAt,
                 UserFullName = review.Appointment.User.FullName,
@@ -225,7 +235,7 @@ namespace IClinicApp.API.Repos.Implementations
         }
 
         // User Mapping
-        public UserProfileDto MapToUserProfileDto(ApplicationUser user)
+        public UserProfileDto MapToUserProfileDto(ApplicationUser? user)
         {
             if (user == null) return null!;
             return new UserProfileDto
@@ -233,18 +243,7 @@ namespace IClinicApp.API.Repos.Implementations
                 Id = user.Id,
                 FullName = user.FullName,
                 Email = user.Email!,
-                PhoneNumber = user.PhoneNumber!,
-                MedicalRecords = user.MedicalRecords.Select(m => MapToMedicalRecordDto(m)).ToList()
-            };
-        }
-        public ApplicationUser MapUpdateToAppUser(UpdateUserProfileDto updateUserProfileDto)
-        {
-            if (updateUserProfileDto == null) return null!;
-            return new ApplicationUser
-            {
-                Id = updateUserProfileDto.Id,
-                FullName = updateUserProfileDto.FullName,
-                PhoneNumber = updateUserProfileDto.PhoneNumber,
+                PhoneNumber = user.PhoneNumber!
             };
         }
 

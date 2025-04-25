@@ -1,7 +1,11 @@
-﻿namespace IClinicApp.API.Repos.Services
+﻿using IClinicApp.API.Dtos.City;
+
+namespace IClinicApp.API.Repos.Services
 {
     public interface ICityService
     {
-        Task<IEnumerable<string>> GetCitiesByGovernorateIdAsync(Guid governorateId);
+        Task<IEnumerable<CityDto>> GetCitiesByGovernorateId(Guid GovernorateId);
+        Task<CityDto> GetCityByIdAsync(Guid id);
+        Task<IEnumerable<CityDto>> GetAllCities();
     }
 }

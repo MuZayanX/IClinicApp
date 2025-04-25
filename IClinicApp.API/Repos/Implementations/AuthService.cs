@@ -95,7 +95,8 @@ namespace IClinicApp.API.Repos.Implementations
                 {
                     Token = token,
                     Username = user.UserName!
-                }
+                },
+                Errors = ["no errors"]
             };
         }
         public async Task<bool> ConfirmEmailAsync(ConfirmEmailDto confirmEmailDto)

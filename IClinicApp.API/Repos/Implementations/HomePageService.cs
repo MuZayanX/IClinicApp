@@ -17,16 +17,20 @@ namespace IClinicApp.API.Repos.Implementations
         public async Task<HomePageDto> GetHomePageAsync(Guid userId)
         {
             var user = await _dbContext.Users.FindAsync(userId);
+            if (user == null)
+            {
+                return null!;
+            }
             var specializations = await _dbContext.Specializations.ToListAsync();
             var recommendedDoctors = await _dbContext.Doctors
                 .Include(d => d.Reviews)
                 .Include(d => d.Specialization)
                 .Include(d => d.City).ThenInclude(c => c.Governorate)
-                .OrderByDescending(d => d.Reviews.Average(r => r.Rating))
+                .OrderByDescending(d => d.Reviews!.Count != 0? d.Reviews.Average(r => r.Rating) : 0)
                 .Take(5)
                 .ToListAsync();
-
-            return _dtoMapper.MapToHomePageDto(user.FullName, recommendedDoctors, specializations);
+            var result = _dtoMapper.MapToHomePageDto(user.FullName, recommendedDoctors, specializations);
+            return result;
         }
     }
 }
