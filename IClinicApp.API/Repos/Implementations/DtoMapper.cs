@@ -1,4 +1,5 @@
-﻿using IClinicApp.API.Dtos.Appointments;
+﻿using System.Security.Claims;
+using IClinicApp.API.Dtos.Appointments;
 using IClinicApp.API.Dtos.Auth;
 using IClinicApp.API.Dtos.City;
 using IClinicApp.API.Dtos.Doctors;
@@ -14,11 +15,15 @@ using IClinicApp.API.Dtos.UserProfile;
 using IClinicApp.API.Models.Entities;
 using IClinicApp.API.Models.Enums;
 using IClinicApp.API.Repos.Services;
+using Microsoft.AspNetCore.Identity;
 
 namespace IClinicApp.API.Repos.Implementations
 {
-    public class DtoMapper : IDtoMapper
+    public class DtoMapper(UserManager<ApplicationUser> userManager, IHttpContextAccessor httpContextAccessor) : IDtoMapper
     {
+        private readonly IHttpContextAccessor _httpContextAccessor = httpContextAccessor;
+        private readonly UserManager<ApplicationUser> _userManager = userManager;
+
         // Auth Mapping
         public ApplicationUser ToApplicationUser(RegisterDto registerDto)
         {
@@ -82,16 +87,6 @@ namespace IClinicApp.API.Repos.Implementations
                 Doctors = city.Doctors.Select(d => MapToDoctorDto(d)).ToList()
             };
         }
-        public DoctorFilterDto MapToFilterDto(Doctor Doctor)
-        {
-            if (Doctor == null) return null!;
-            
-            return new DoctorFilterDto
-            {
-                Specialization = MapToSpecializationDto(Doctor.Specialization),
-                Rating =  Doctor.Reviews!.Count != 0 ? Doctor.Reviews.Average(r => r.Rating) : 0,
-            };
-        }
         public SpecializationDto MapToSpecializationDto(Specialization specialization)
         {
             if (specialization == null) return null!;
@@ -141,7 +136,7 @@ namespace IClinicApp.API.Repos.Implementations
                 ClinicAddress = doctor.CllinicAddress,
                 PhoneNumber = doctor.PhoneNumber,
                 ExperienceYears = doctor.ExperienceYears,
-                Reviews = doctor.Reviews.Select(r => MapToReviewDto(r)).ToList(),
+                Reviews = doctor.Reviews?.Select(r => MapToReviewDto(r)).ToList() ?? []
             };
         }
 
@@ -183,14 +178,17 @@ namespace IClinicApp.API.Repos.Implementations
                 IsConfirmed = payment.IsConfirmed,
                 Amount = payment.Amount,
                 Method = payment.Method,
-                PaymentDate = payment.PaymentDate
+                PaymentDate = payment.PaymentDate,
+                AppointmentId = payment.AppointmentId
             };
         }
         public Payment MapToPayment(AddPaymentDto addPaymentDto)
         {
+
             if (addPaymentDto == null) return null!;
             return new Payment
             {
+                Id = Guid.NewGuid() ,
                 AppointmentId = addPaymentDto.AppointmentId,
                 Amount = addPaymentDto.Amount,
                 Method = addPaymentDto.Method,
@@ -200,27 +198,30 @@ namespace IClinicApp.API.Repos.Implementations
         }
 
         // Appointment Mapping
-        public AppointmentDetailsDto MapAppointmentToDetailsDto(Appointment appointment)
+        public AppointmentDetailsDto MapToAppointmentDetailsDto(Appointment appointment)
         {
+            if (appointment == null) return null!;
+
             return new AppointmentDetailsDto
             {
                 Id = appointment.Id,
                 Date = appointment.Date,
                 Status = appointment.Status,
-                DoctorId = appointment.DoctorId,
                 Doctor = MapToDoctorDto(appointment.Doctor),
-                PaymentInfo = appointment.Payment != null ? MapToPaymentInfoDto(appointment.Payment) : null
+                PaymentInfo = appointment.Payment == null ? null : MapToPaymentInfoDto(appointment.Payment)
             };
         }
-        public Appointment MapToAppointment(BookAppointmentDto bookAppointmentDto)
+        public Appointment MapToAppointment(BookAppointmentDto bookAppointmentDto, Guid userId)
         {
             if (bookAppointmentDto == null) return null!;
+
             return new Appointment
             {
+                Id = Guid.NewGuid(), // Generate a new ID for the appointment
                 Date = bookAppointmentDto.Date,
                 Status = AppointmentStatus.Pending,
                 DoctorId = bookAppointmentDto.DoctorId,
-                UserId = bookAppointmentDto.UserId
+                UserId = userId
             };
         }
         public Appointment MapUpadateToAppointment(UpdateAppointmentDto updateAppointmentDto)

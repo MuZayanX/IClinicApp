@@ -23,6 +23,7 @@ namespace IClinicApp.API.Data
         public DbSet<Appointment> Appointments { get; set; }
         public DbSet<Notification> Notifications { get; set; }
         public DbSet<MedicalRecord> MedicalRecords { get; set; }
+        public DbSet<Payment> Payments { get; set; }
 
         protected override void OnModelCreating(ModelBuilder builder)
         {
@@ -93,6 +94,14 @@ namespace IClinicApp.API.Data
                 .WithMany(u => u.Notifications)
                 .HasForeignKey(n => n.UserId)
                 .OnDelete(DeleteBehavior.Cascade);
+
+            // --------------------- Payment ------------------------
+            builder.Entity<Payment>()
+                .HasOne(p => p.Appointment)
+                .WithOne(a => a.Payment)
+                .HasForeignKey<Payment>(p => p.AppointmentId)
+                .OnDelete(DeleteBehavior.NoAction);
+
 
             // -------------------- Optional: Unique Constraints / Indexes --------------------
 

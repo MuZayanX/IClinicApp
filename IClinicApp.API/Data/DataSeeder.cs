@@ -9,7 +9,7 @@ namespace IClinicApp.API.Data
         {
             var roleManager = serviceProvider.GetRequiredService<RoleManager<ApplicationRole>>();
 
-            string[] roleNames = { "Admin", "User", "Doctor" };
+            string[] roleNames = ["Admin", "User", "Doctor"];
 
             foreach (var roleName in roleNames)
             {

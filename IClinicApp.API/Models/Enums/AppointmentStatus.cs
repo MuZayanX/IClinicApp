@@ -10,6 +10,9 @@ namespace IClinicApp.API.Models.Enums
     {
         Pending = 0,
         Completed = 1,
-        Cancelled = 2
+        Payed = 2,
+        CanceledByUser = 3,
+        CanceledByDoctor = 4,
+        Expired = 5
     }
 }

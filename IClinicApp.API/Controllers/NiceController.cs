@@ -4,7 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IClinicApp.API.Controllers
 {
-    [Authorize(Policy = "AdminOnly")]
+    [Authorize(Policy = "DoctorOnly")]
     [Route("api/[controller]")]
     [ApiController]
     public class NiceController : ControllerBase

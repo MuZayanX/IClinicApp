@@ -1,4 +1,5 @@
-﻿using IClinicApp.API.Models.Enums;
+﻿using IClinicApp.API.Dtos.Appointments;
+using IClinicApp.API.Models.Enums;
 
 namespace IClinicApp.API.Dtos.Payments
 {
@@ -7,7 +8,8 @@ namespace IClinicApp.API.Dtos.Payments
         public Guid Id { get; set; } // Payment ID
         public bool IsConfirmed { get; set; }
         public decimal Amount { get; set; }
-        public PaymentMethod Method { get; set; } // Manual, Card, Wallet
+        public Guid AppointmentId { get; set; } // Appointment ID
+        public PaymentMethod Method { get; set; } // InstaPay, Wallet
         public DateTime PaymentDate { get; set; }
 
     }

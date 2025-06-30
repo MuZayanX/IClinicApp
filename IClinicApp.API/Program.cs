@@ -33,6 +33,9 @@ builder.Services.AddScoped<IUserProfileService, UserProfileService>();
 builder.Services.AddScoped<ISpecializationService, SpecializationService>();
 builder.Services.AddScoped<IGovernorateService, GovernorateService>();
 builder.Services.AddScoped<ICityService, CityService>();
+builder.Services.AddScoped<IDoctorService, DoctorService>();
+builder.Services.AddScoped<IAppointmentService, AppointmentService>();
+builder.Services.AddScoped<IPaymentService, PaymentService>();
 
 
 // Add Identity
@@ -88,6 +91,7 @@ builder.Services.AddAuthorizationBuilder()
                        .AddPolicy("AdminOnly", policy => policy.RequireRole("Admin"))
                        //Add Authorization
                        .AddPolicy("UserOnly", policy => policy.RequireRole("User"))
+                       .AddPolicy("DoctorOnly", policy => policy.RequireRole("Doctor"))
                        //Add Authorization
                        .AddPolicy("UserorAdmin", policy => policy.RequireRole("Admin", "User"));
 
@@ -98,7 +102,7 @@ builder.Services.AddCors(options => {
               .AllowAnyHeader());
 });
 
-
+builder.Services.AddHttpContextAccessor();
 
 var app = builder.Build();
 

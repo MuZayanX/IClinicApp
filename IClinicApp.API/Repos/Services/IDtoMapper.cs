@@ -21,7 +21,6 @@ namespace IClinicApp.API.Repos.Services
         Doctor MapToAddDoctor(AddDoctorDto addDoctorDto);
         GovernorateDto MapToGovernorateDto(Governorate governorate);
         CityDto MapToCityDto(City city);
-        DoctorFilterDto MapToFilterDto(Doctor Doctor);
         SpecializationDto MapToSpecializationDto(Specialization specialization);
         DoctorDto MapToDoctorDto(Doctor doctor);
         DoctorProfileDto MapToDoctorProfileDto(Doctor doctor);
@@ -29,8 +28,8 @@ namespace IClinicApp.API.Repos.Services
         Review MapToReview(AddReviewDto addReviewDto);
         PaymentInfoDto MapToPaymentInfoDto(Payment payment);
         Payment MapToPayment(AddPaymentDto addPaymentDto);
-        AppointmentDetailsDto MapAppointmentToDetailsDto(Appointment appointment);
-        Appointment MapToAppointment(BookAppointmentDto bookAppointmentDto);
+        AppointmentDetailsDto MapToAppointmentDetailsDto(Appointment appointment);
+        Appointment MapToAppointment(BookAppointmentDto bookAppointmentDto , Guid userId);
         Appointment MapUpadateToAppointment(UpdateAppointmentDto updateAppointmentDto);
         UserProfileDto MapToUserProfileDto(ApplicationUser user);
         NotificationDto MapToNotificationDto(Notification notification);

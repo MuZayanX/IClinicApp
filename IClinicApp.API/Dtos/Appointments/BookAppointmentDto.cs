@@ -6,6 +6,5 @@ namespace IClinicApp.API.Dtos.Appointments
     {
         public Guid DoctorId { get; set; }
         public DateTime Date { get; set; }
-        public Guid UserId { get; set; }
     }
 }

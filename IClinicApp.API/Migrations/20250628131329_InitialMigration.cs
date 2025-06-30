@@ -261,7 +261,7 @@ namespace IClinicApp.API.Migrations
                     PhoneNumber = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ClinicName = table.Column<string>(type: "nvarchar(max)", nullable: false),
                     ExperienceYears = table.Column<int>(type: "int", nullable: true),
-                    Price = table.Column<decimal>(type: "decimal(18,2)", nullable: true)
+                    Price = table.Column<decimal>(type: "decimal(10,2)", precision: 10, scale: 2, nullable: true)
                 },
                 constraints: table =>
                 {
@@ -313,7 +313,7 @@ namespace IClinicApp.API.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Payment",
+                name: "Payments",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -325,13 +325,12 @@ namespace IClinicApp.API.Migrations
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Payment", x => x.Id);
+                    table.PrimaryKey("PK_Payments", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Payment_Appointments_AppointmentId",
+                        name: "FK_Payments_Appointments_AppointmentId",
                         column: x => x.AppointmentId,
                         principalTable: "Appointments",
-                        principalColumn: "Id",
-                        onDelete: ReferentialAction.Cascade);
+                        principalColumn: "Id");
                 });
 
             migrationBuilder.CreateTable(
@@ -365,16 +364,16 @@ namespace IClinicApp.API.Migrations
             migrationBuilder.InsertData(
                 table: "Governorates",
                 columns: new[] { "Id", "Name" },
-                values: new object[] { new Guid("d62d0866-041a-4f62-b95b-50c496c4126f"), "Cairo" });
+                values: new object[] { new Guid("3c72c8de-6d8c-4b6b-bc7a-b1c666b7992f"), "Cairo" });
 
             migrationBuilder.InsertData(
                 table: "Specializations",
                 columns: new[] { "Id", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("1550c8e6-b6ee-4495-a6e8-80867f412050"), "Neurology" },
-                    { new Guid("167c56bb-5e5f-4989-b813-73782124c631"), "Cardiology" },
-                    { new Guid("3b2f7fa2-771f-485a-a036-b911041e8a09"), "Dermatology" }
+                    { new Guid("171d14a5-5a50-468f-a4b7-77dbf1149601"), "Neurology" },
+                    { new Guid("57c65b5a-9611-40f8-b462-d0ef5e0929b1"), "Cardiology" },
+                    { new Guid("f98df38a-121f-4eb0-a2f4-526eabe1345e"), "Dermatology" }
                 });
 
             migrationBuilder.InsertData(
@@ -382,8 +381,8 @@ namespace IClinicApp.API.Migrations
                 columns: new[] { "Id", "GovernorateId", "Name" },
                 values: new object[,]
                 {
-                    { new Guid("a5098018-8da4-4468-ab2b-0b6efa739b2b"), new Guid("d62d0866-041a-4f62-b95b-50c496c4126f"), "Nasr City" },
-                    { new Guid("bab9b78b-df61-40d7-a8a0-36bea2c9bb0f"), new Guid("d62d0866-041a-4f62-b95b-50c496c4126f"), "Heliopolis" }
+                    { new Guid("0f3f5f59-5b9d-40a5-85bf-5170d3497c27"), new Guid("3c72c8de-6d8c-4b6b-bc7a-b1c666b7992f"), "Nasr City" },
+                    { new Guid("70fb3ca7-527b-4452-a2a9-7fa8ae8d55d2"), new Guid("3c72c8de-6d8c-4b6b-bc7a-b1c666b7992f"), "Heliopolis" }
                 });
 
             migrationBuilder.CreateIndex(
@@ -483,9 +482,10 @@ namespace IClinicApp.API.Migrations
                 column: "UserId");
 
             migrationBuilder.CreateIndex(
-                name: "IX_Payment_AppointmentId",
-                table: "Payment",
-                column: "AppointmentId");
+                name: "IX_Payments_AppointmentId",
+                table: "Payments",
+                column: "AppointmentId",
+                unique: true);
 
             migrationBuilder.CreateIndex(
                 name: "IX_Reviews_AppointmentId",
@@ -530,7 +530,7 @@ namespace IClinicApp.API.Migrations
                 name: "Notifications");
 
             migrationBuilder.DropTable(
-                name: "Payment");
+                name: "Payments");
 
             migrationBuilder.DropTable(
                 name: "Reviews");

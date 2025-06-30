@@ -173,14 +173,14 @@ namespace IClinicApp.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("a5098018-8da4-4468-ab2b-0b6efa739b2b"),
-                            GovernorateId = new Guid("d62d0866-041a-4f62-b95b-50c496c4126f"),
+                            Id = new Guid("0f3f5f59-5b9d-40a5-85bf-5170d3497c27"),
+                            GovernorateId = new Guid("3c72c8de-6d8c-4b6b-bc7a-b1c666b7992f"),
                             Name = "Nasr City"
                         },
                         new
                         {
-                            Id = new Guid("bab9b78b-df61-40d7-a8a0-36bea2c9bb0f"),
-                            GovernorateId = new Guid("d62d0866-041a-4f62-b95b-50c496c4126f"),
+                            Id = new Guid("70fb3ca7-527b-4452-a2a9-7fa8ae8d55d2"),
+                            GovernorateId = new Guid("3c72c8de-6d8c-4b6b-bc7a-b1c666b7992f"),
                             Name = "Heliopolis"
                         });
                 });
@@ -220,7 +220,8 @@ namespace IClinicApp.API.Migrations
                         .HasColumnType("nvarchar(max)");
 
                     b.Property<decimal?>("Price")
-                        .HasColumnType("decimal(18,2)");
+                        .HasPrecision(10, 2)
+                        .HasColumnType("decimal(10,2)");
 
                     b.Property<Guid>("SpecializationId")
                         .HasColumnType("uniqueidentifier");
@@ -261,7 +262,7 @@ namespace IClinicApp.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("d62d0866-041a-4f62-b95b-50c496c4126f"),
+                            Id = new Guid("3c72c8de-6d8c-4b6b-bc7a-b1c666b7992f"),
                             Name = "Cairo"
                         });
                 });
@@ -350,9 +351,10 @@ namespace IClinicApp.API.Migrations
 
                     b.HasKey("Id");
 
-                    b.HasIndex("AppointmentId");
+                    b.HasIndex("AppointmentId")
+                        .IsUnique();
 
-                    b.ToTable("Payment");
+                    b.ToTable("Payments");
                 });
 
             modelBuilder.Entity("IClinicApp.API.Models.Entities.Review", b =>
@@ -406,17 +408,17 @@ namespace IClinicApp.API.Migrations
                     b.HasData(
                         new
                         {
-                            Id = new Guid("167c56bb-5e5f-4989-b813-73782124c631"),
+                            Id = new Guid("57c65b5a-9611-40f8-b462-d0ef5e0929b1"),
                             Name = "Cardiology"
                         },
                         new
                         {
-                            Id = new Guid("3b2f7fa2-771f-485a-a036-b911041e8a09"),
+                            Id = new Guid("f98df38a-121f-4eb0-a2f4-526eabe1345e"),
                             Name = "Dermatology"
                         },
                         new
                         {
-                            Id = new Guid("1550c8e6-b6ee-4495-a6e8-80867f412050"),
+                            Id = new Guid("171d14a5-5a50-468f-a4b7-77dbf1149601"),
                             Name = "Neurology"
                         });
                 });
@@ -604,9 +606,9 @@ namespace IClinicApp.API.Migrations
             modelBuilder.Entity("IClinicApp.API.Models.Entities.Payment", b =>
                 {
                     b.HasOne("IClinicApp.API.Models.Entities.Appointment", "Appointment")
-                        .WithMany()
-                        .HasForeignKey("AppointmentId")
-                        .OnDelete(DeleteBehavior.Cascade)
+                        .WithOne("Payment")
+                        .HasForeignKey("IClinicApp.API.Models.Entities.Payment", "AppointmentId")
+                        .OnDelete(DeleteBehavior.NoAction)
                         .IsRequired();
 
                     b.Navigation("Appointment");
@@ -693,6 +695,8 @@ namespace IClinicApp.API.Migrations
 
             modelBuilder.Entity("IClinicApp.API.Models.Entities.Appointment", b =>
                 {
+                    b.Navigation("Payment");
+
                     b.Navigation("Review");
                 });
 
