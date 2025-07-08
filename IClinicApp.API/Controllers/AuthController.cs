@@ -47,14 +47,18 @@ namespace IClinicApp.API.Controllers
         }
 
         [HttpPost("confirm-email")]
-        public async Task<IActionResult> ConfirmEmail(ConfirmEmailDto dto)
+        public async Task<IActionResult> ConfirmEmailWithCode([FromBody] ConfirmEmailDto confirmCodeDto)
         {
-            var result = await _authService.ConfirmEmailAsync(dto);
-            if (!result)
-                return BadRequest("Invalid token or user.");
+            var result = await _authService.ConfirmEmailWithCodeAsync(confirmCodeDto);
 
-            return Ok("Email confirmed successfully.");
+            if (!result.Status)
+            {
+                return BadRequest(result);
+            }
+
+            return Ok(result);
         }
+
         [Authorize]
         [HttpPost("reset-password")]
         public async Task<IActionResult> ResetPassword(ResetPasswordDto dto)
@@ -71,15 +75,14 @@ namespace IClinicApp.API.Controllers
         [HttpPost("logout")]
         public async Task<IActionResult> Logout()
         {
+            var userId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+            if (string.IsNullOrEmpty(userId))
+            {
+                return Unauthorized();
+            }
+
             await _authService.LogoutAsync();
             return Ok("Logged out successfully.");
-        }
-
-        [Authorize]
-        [HttpGet("get-hello")]
-        public IActionResult GetHello()
-        {
-            return Ok("Hello from AuthController!");
         }
     }
 }

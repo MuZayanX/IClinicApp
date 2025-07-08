@@ -7,7 +7,7 @@ namespace IClinicApp.API.Repos.Services
         Task<AuthResponseDto> RegisterAsync(RegisterDto dto);
         Task<AuthResponseDto> LoginAsync(LoginDto dto);
         Task LogoutAsync();
-        Task<bool> ConfirmEmailAsync(ConfirmEmailDto confirmEmailDto);
+        Task<AuthResponseDto> ConfirmEmailWithCodeAsync(ConfirmEmailDto confirmCodeDto);
         Task<bool> ResetPasswordAsync(ResetPasswordDto resetPasswordDto);
     }
 }

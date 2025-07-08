@@ -8,6 +8,7 @@ using IClinicApp.API.Dtos.Governorate;
 using IClinicApp.API.Dtos.HomePage;
 using IClinicApp.API.Dtos.MedicalRecords;
 using IClinicApp.API.Dtos.Notifications;
+using IClinicApp.API.Dtos.Patients;
 using IClinicApp.API.Dtos.Payments;
 using IClinicApp.API.Dtos.Reviews;
 using IClinicApp.API.Dtos.Specialization;
@@ -143,28 +144,17 @@ namespace IClinicApp.API.Repos.Implementations
         // Review Mapping
         public ReviewDto MapToReviewDto(Review review)
         {
+
             if (review == null) return null!;
             return new ReviewDto
             {
                 Id = review.Id,
+                AppointmentId = review.AppointmentId,
                 Comment = review.Comment ?? string.Empty,
                 Stars = review.Rating,
                 CreatedAt = review.CreatedAt,
                 UserFullName = review.Appointment.User.FullName,
                 DoctorId = review.DoctorId,
-                UserId = review.Appointment.UserId,
-            };
-        }
-        public Review MapToReview(AddReviewDto addReviewDto)
-        {
-            if (addReviewDto == null) return null!;
-            return new Review
-            {
-                Rating = addReviewDto.Stars,
-                Comment = addReviewDto.ReviewText,
-                CreatedAt = DateTime.UtcNow,
-                AppointmentId = addReviewDto.AppointmentId,
-                DoctorId = addReviewDto.DoctorId
             };
         }
 
@@ -198,19 +188,42 @@ namespace IClinicApp.API.Repos.Implementations
         }
 
         // Appointment Mapping
-        public AppointmentDetailsDto MapToAppointmentDetailsDto(Appointment appointment)
+        public AppointmentDetailsDto MapToAppointmentDetailsDto(Appointment appointment, bool isDoctorView)
         {
             if (appointment == null) return null!;
 
-            return new AppointmentDetailsDto
+            var dto = new AppointmentDetailsDto
             {
                 Id = appointment.Id,
                 Date = appointment.Date,
                 Status = appointment.Status,
-                Doctor = MapToDoctorDto(appointment.Doctor),
-                PaymentInfo = appointment.Payment == null ? null : MapToPaymentInfoDto(appointment.Payment)
+                PaymentInfo = MapToPaymentInfoDto(appointment.Payment!) // Assuming you have this helper
+            };
+
+            if (isDoctorView)
+            {
+                // A doctor is viewing, so populate the patient info
+                dto.Patient = appointment.User == null ? null! : MapToPatientInfoDto(appointment.User); // Assuming you have this helper
+            }
+            else
+            {
+                // A patient is viewing, so populate the doctor info
+                dto.Doctor = MapToDoctorDto(appointment.Doctor); // Assuming you have this helper
+            }
+
+            return dto;
+        }
+
+        public PatientInfoDto MapToPatientInfoDto(ApplicationUser user)
+        {
+            return new PatientInfoDto
+            {
+                Id = user.Id,
+                FullName = user.FullName,
+                PhoneNumber = user.PhoneNumber ?? string.Empty
             };
         }
+
         public Appointment MapToAppointment(BookAppointmentDto bookAppointmentDto, Guid userId)
         {
             if (bookAppointmentDto == null) return null!;

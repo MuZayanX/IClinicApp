@@ -1,10 +1,12 @@
-﻿using IClinicApp.API.Dtos.Reviews;
+﻿using System.Security.Claims;
+using IClinicApp.API.Dtos.Reviews;
 
 namespace IClinicApp.API.Repos.Services
 {
     public interface IReviewService
     {
-        Task<bool> AddReviewAsync(AddReviewDto dto);
+        Task<ReviewDto> CreateReviewAsync(AddReviewDto addReviewDto, ClaimsPrincipal user);
+        Task<ReviewDto> GetReviewByIdAsync(Guid id);
         Task<IEnumerable<ReviewDto>> GetReviewsForDoctorAsync(Guid doctorId);
     }
 }

@@ -148,5 +148,22 @@ namespace IClinicApp.API.Controllers
                 return StatusCode(500, new { message = "An Unexpected error occurred." });
             }
         }
+
+        [HttpGet("my")]
+        // Simply add "Doctor" to the list of allowed roles
+        [Authorize(Roles = "User,Doctor")]
+        public async Task<IActionResult> GetMyAppointments([FromQuery] string status)
+        {
+            var validStatuses = new[] { "upcoming", "completed", "canceled" };
+            if (string.IsNullOrWhiteSpace(status) || !validStatuses.Contains(status.ToLower()))
+            {
+                return BadRequest(new { message = "Invalid or missing status parameter." });
+            }
+
+            // The service now handles everything automatically
+            var appointments = await _appointmentService.GetMyAppointmentsAsync(status, User);
+
+            return Ok(appointments);
+        }
     }
 }

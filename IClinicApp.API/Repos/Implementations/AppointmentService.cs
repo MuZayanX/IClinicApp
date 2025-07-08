@@ -66,7 +66,12 @@ namespace IClinicApp.API.Repos.Implementations
 
             // fetch the created appointment with all related data
             var createdAppointment = await _context.Appointments
+                .Include(a => a.User) // Include the patient (user) data
                 .Include(a => a.Doctor)
+                    .ThenInclude(d => d.Specialization)
+                .Include(a => a.Doctor)
+                    .ThenInclude(d => d.City)
+                        .ThenInclude(c => c.Governorate)
                 .AsNoTracking()
                 .FirstOrDefaultAsync(a => a.Id == appointment.Id);
 
@@ -76,7 +81,7 @@ namespace IClinicApp.API.Repos.Implementations
             }
 
             // map to DTO
-            var appointmentDetailsDto = _dtoMapper.MapToAppointmentDetailsDto(createdAppointment);
+            var appointmentDetailsDto = _dtoMapper.MapToAppointmentDetailsDto(createdAppointment, false);
             return appointmentDetailsDto;
         }
  
@@ -131,7 +136,7 @@ namespace IClinicApp.API.Repos.Implementations
                 .AsNoTracking()
                 .FirstOrDefaultAsync(a => a.Id == appointment.Id);
 
-            return _dtoMapper.MapToAppointmentDetailsDto(confirmedAppointment!);
+            return _dtoMapper.MapToAppointmentDetailsDto(confirmedAppointment! , true);
         }
         public async Task<AppointmentDetailsDto> CompleteAppointmentAsync(Guid appointmentId, ClaimsPrincipal doctorUser)
         {
@@ -176,7 +181,7 @@ namespace IClinicApp.API.Repos.Implementations
             await _context.SaveChangesAsync();
             // Map to DTO
 
-            return _dtoMapper.MapToAppointmentDetailsDto(appointment);
+            return _dtoMapper.MapToAppointmentDetailsDto(appointment, true);
         }
 
 
@@ -274,6 +279,81 @@ namespace IClinicApp.API.Repos.Implementations
             // This is the most important part of this workflow from a user experience perspective.
             // You would inject a notification service and call it here to immediately inform the patient.
             // e.g., await _notificationService.SendAppointmentCanceledByDoctorNotification(appointment.UserId, appointment.Id);
+        }
+
+        public async Task<IEnumerable<AppointmentDetailsDto>> GetMyAppointmentsAsync(string status, ClaimsPrincipal user)
+        {
+            // === 1. IDENTIFY USER'S ROLE AND ID ===
+            var userIdString = _userManager.GetUserId(user);
+            if (string.IsNullOrEmpty(userIdString))
+            {
+                return Enumerable.Empty<AppointmentDetailsDto>();
+            }
+            var currentUserId = Guid.Parse(userIdString);
+
+            var isDoctor = user.IsInRole("Doctor");
+
+            // === 2. CREATE THE ROLE-AWARE BASE QUERY ===
+            IQueryable<Appointment> query;
+
+            if (isDoctor)
+            {
+                // If the user is a doctor, find their Doctor profile ID
+                var doctor = await _context.Doctors.AsNoTracking()
+                                 .FirstOrDefaultAsync(d => d.UserId == currentUserId);
+
+                if (doctor == null) return Enumerable.Empty<AppointmentDetailsDto>(); // Not a valid doctor profile
+
+                // Query by DoctorId and include the patient (User) data for the DTO
+                query = _context.Appointments
+                    .Where(a => a.DoctorId == doctor.Id)
+                    .Include(a => a.User); // For the PatientInfoDto
+                        
+            }
+            else
+            {
+                // If the user is a patient, query by UserId and include the Doctor data
+                query = _context.Appointments
+                    .Where(a => a.UserId == currentUserId)
+                    .Include(a => a.Doctor) // For the DoctorDto
+                        .ThenInclude(d => d.Specialization)
+                    .Include(a => a.Doctor)
+                        .ThenInclude(d => d.City)
+                            .ThenInclude(c => c.Governorate);
+            }
+
+            // Include the payment info for both roles
+            query = query.Include(a => a.Payment);
+
+            // === 3. APPLY FILTERING AND ORDERING (This logic remains IDENTICAL) ===
+            List<Appointment> appointments;
+            switch (status?.ToLower())
+            {
+                case "upcoming":
+                    appointments = await query
+                        .Where(a => a.Status == AppointmentStatus.Pending || a.Status == AppointmentStatus.Payed)
+                        .OrderBy(a => a.Date).ToListAsync();
+                    break;
+                case "completed":
+                    appointments = await query
+                        .Where(a => a.Status == AppointmentStatus.Completed)
+                        .OrderByDescending(a => a.Date).ToListAsync();
+                    break;
+                case "canceled":
+                    appointments = await query
+                        .Where(a => a.Status == AppointmentStatus.CanceledByUser ||
+                                    a.Status == AppointmentStatus.CanceledByDoctor ||
+                                    a.Status == AppointmentStatus.Expired)
+                        .OrderByDescending(a => a.Date).ToListAsync();
+                    break;
+                default:
+                    appointments = new List<Appointment>();
+                    break;
+            }
+
+            // === 4. MAP TO DTOS AND RETURN ===
+            // You will need to update your mapper to handle the new PatientInfoDto
+            return appointments.Select(a => _dtoMapper.MapToAppointmentDetailsDto(a, isDoctor));
         }
     }
 }

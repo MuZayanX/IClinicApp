@@ -11,5 +11,6 @@ namespace IClinicApp.API.Repos.Services
         Task<AppointmentDetailsDto> CompleteAppointmentAsync(Guid appointmentId, ClaimsPrincipal doctorUser);
         Task CancelAppointmentAsPatientAsync(Guid appointmentId, ClaimsPrincipal user);
         Task CancelAppointmentAsDoctorAsync(Guid appointmentId, ClaimsPrincipal doctorUser);
+        Task<IEnumerable<AppointmentDetailsDto>> GetMyAppointmentsAsync(string status, ClaimsPrincipal user);
     }
 }

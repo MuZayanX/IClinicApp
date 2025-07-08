@@ -36,6 +36,8 @@ builder.Services.AddScoped<ICityService, CityService>();
 builder.Services.AddScoped<IDoctorService, DoctorService>();
 builder.Services.AddScoped<IAppointmentService, AppointmentService>();
 builder.Services.AddScoped<IPaymentService, PaymentService>();
+builder.Services.AddScoped<IReviewService, ReviewService>();
+builder.Services.AddScoped<IEmailService, SendGridEmailService>();
 
 
 // Add Identity
